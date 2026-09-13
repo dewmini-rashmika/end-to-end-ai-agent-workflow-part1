@@ -100,6 +100,14 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: ".5" },
         },
+        dash: {
+          to: { strokeDashoffset: "-100" },
+        },
+        "plane-fly": {
+          "0%": { transform: "translate(0, 0) rotate(45deg)" },
+          "50%": { transform: "translate(10px, -5px) rotate(45deg)" },
+          "100%": { transform: "translate(0, 0) rotate(45deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -108,6 +116,8 @@ const config: Config = {
         "fade-in": "fade-in 0.4s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
         "spin-slow": "spin 3s linear infinite",
+        dash: "dash 3s linear infinite",
+        "plane-fly": "plane-fly 4s ease-in-out infinite",
       },
       backgroundImage: {
         "hero-gradient":

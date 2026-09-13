@@ -98,9 +98,14 @@
    ============================================================ */
 
 @layer components {
-  /* Hero gradient background */
+  /* Hero gradient background (fallback if image fails) */
   .hero-gradient {
     background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 40%, #2563eb 70%, #3b82f6 100%);
+  }
+
+  /* Pacifico cursive font helper */
+  .font-pacifico {
+    font-family: var(--font-pacifico), cursive;
   }
 
   /* Glass card effect */

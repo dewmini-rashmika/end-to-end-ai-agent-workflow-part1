@@ -1,18 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Plane, MapPin, Calendar, Users, DollarSign, Search, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Plane, MapPin, Calendar, ArrowRight, Loader2, Sparkles, HelpCircle } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { useTripPlanner } from "@/hooks/use-trip-planner";
 import type { BudgetTier, PlanTripRequest } from "@/types";
 
@@ -25,10 +16,6 @@ export function TripForm() {
   const [destination, setDestination] = useState("");
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
-  const [numTravelers, setNumTravelers] = useState(1);
-  const [tripDays, setTripDays] = useState(5);
-  const [budget, setBudget] = useState<BudgetTier>("mid-range");
-  const [interests, setInterests] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,198 +27,130 @@ export function TripForm() {
       ...(destination && { destination }),
       ...(departureDate && { departure_date: departureDate }),
       ...(returnDate && { return_date: returnDate }),
-      num_travelers: numTravelers,
-      trip_duration_days: tripDays,
-      budget,
-      interests,
+      num_travelers: 1,
+      trip_duration_days: 5,
+      budget: "mid-range" as BudgetTier,
+      interests: "",
     };
 
     plan(req);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (query.trim() && !isLoading) {
+        handleSubmit(e as unknown as React.FormEvent);
+      }
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Natural language query — primary input */}
-      <div className="space-y-2">
-        <Label htmlFor="query" className="text-white text-sm font-medium">
-          Describe your trip *
-        </Label>
-        <Textarea
-          id="query"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Plan a 7-day trip from London to Tokyo in November 2026 for 2 people. We love Japanese food, temples, and anime culture. Mid-range budget."
-          className="min-h-[100px] bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-white/30 focus-visible:border-white/40 resize-none"
-          required
-          disabled={isLoading}
-        />
-        <p className="text-xs text-blue-200/70">
-          Be as specific as you like — dates, preferences, budget, activities, all welcome.
-        </p>
+    <form onSubmit={handleSubmit} className="p-5 sm:p-6">
+      {/* Header row */}
+      <div className="mb-3 flex items-center gap-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
+          <Sparkles className="h-4 w-4 text-white" />
+        </div>
+        <span className="text-sm font-semibold text-gray-800">Describe your trip</span>
+        <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
       </div>
 
-      {/* Optional structured fields — collapsible row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Origin */}
-        <div className="space-y-1.5">
-          <Label htmlFor="origin" className="text-white/80 text-xs font-medium flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            From (optional)
-          </Label>
+      {/* Textarea row with inline submit button */}
+      <div className="relative mb-4">
+        <Textarea
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Plan a 5-day trip from Colombo to Tokyo in October 2026 for 2 people with a mid-range budget. We love food and temples."
+          className="min-h-[96px] resize-none border-0 bg-transparent p-0 pr-14 text-sm text-gray-800 placeholder:text-gray-400 focus-visible:ring-0 shadow-none"
+          disabled={isLoading}
+        />
+        {/* Submit button — blue circle arrow */}
+        <button
+          type="submit"
+          disabled={!query.trim() || isLoading}
+          className="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/40 transition-all hover:bg-blue-500 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ArrowRight className="h-4 w-4" />
+          )}
+        </button>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-4" />
+
+      {/* 4-field compact row */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {/* From */}
+        <div className="space-y-1">
+          <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+            <Plane className="h-3 w-3" />
+            From <span className="text-gray-400">(optional)</span>
+          </label>
           <Input
-            id="origin"
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
-            placeholder="London, LHR"
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/30 text-sm focus-visible:ring-white/30"
+            placeholder="e.g. Colombo"
             disabled={isLoading}
+            className="h-9 border-gray-200 bg-gray-50 text-xs text-gray-700 placeholder:text-gray-400 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
           />
         </div>
 
-        {/* Destination */}
-        <div className="space-y-1.5">
-          <Label htmlFor="destination" className="text-white/80 text-xs font-medium flex items-center gap-1">
-            <Plane className="h-3 w-3" />
-            To (optional)
-          </Label>
+        {/* To */}
+        <div className="space-y-1">
+          <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+            <MapPin className="h-3 w-3" />
+            To <span className="text-gray-400">(optional)</span>
+          </label>
           <Input
-            id="destination"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            placeholder="Tokyo, NRT"
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/30 text-sm focus-visible:ring-white/30"
+            placeholder="e.g. Tokyo"
             disabled={isLoading}
+            className="h-9 border-gray-200 bg-gray-50 text-xs text-gray-700 placeholder:text-gray-400 focus-visible:ring-blue-500/30 focus-visible:border-blue-400"
           />
         </div>
 
-        {/* Departure Date */}
-        <div className="space-y-1.5">
-          <Label htmlFor="departure_date" className="text-white/80 text-xs font-medium flex items-center gap-1">
+        {/* Departure */}
+        <div className="space-y-1">
+          <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
             <Calendar className="h-3 w-3" />
             Departure
-          </Label>
+          </label>
           <Input
-            id="departure_date"
             type="date"
             value={departureDate}
             onChange={(e) => setDepartureDate(e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/30 text-sm focus-visible:ring-white/30 [color-scheme:dark]"
             disabled={isLoading}
+            className="h-9 border-gray-200 bg-gray-50 text-xs text-gray-700 placeholder:text-gray-400 focus-visible:ring-blue-500/30 focus-visible:border-blue-400 [color-scheme:light]"
           />
         </div>
 
-        {/* Return Date */}
-        <div className="space-y-1.5">
-          <Label htmlFor="return_date" className="text-white/80 text-xs font-medium flex items-center gap-1">
+        {/* Return */}
+        <div className="space-y-1">
+          <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
             <Calendar className="h-3 w-3" />
             Return
-          </Label>
+          </label>
           <Input
-            id="return_date"
             type="date"
             value={returnDate}
             onChange={(e) => setReturnDate(e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/30 text-sm focus-visible:ring-white/30 [color-scheme:dark]"
             disabled={isLoading}
+            className="h-9 border-gray-200 bg-gray-50 text-xs text-gray-700 placeholder:text-gray-400 focus-visible:ring-blue-500/30 focus-visible:border-blue-400 [color-scheme:light]"
           />
         </div>
       </div>
 
-      {/* Second row */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {/* Travelers */}
-        <div className="space-y-1.5">
-          <Label htmlFor="travelers" className="text-white/80 text-xs font-medium flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            Travelers
-          </Label>
-          <Input
-            id="travelers"
-            type="number"
-            min={1}
-            max={20}
-            value={numTravelers}
-            onChange={(e) => setNumTravelers(Number(e.target.value))}
-            className="bg-white/10 border-white/20 text-white text-sm focus-visible:ring-white/30"
-            disabled={isLoading}
-          />
-        </div>
-
-        {/* Duration */}
-        <div className="space-y-1.5">
-          <Label htmlFor="duration" className="text-white/80 text-xs font-medium flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            Duration (days)
-          </Label>
-          <Input
-            id="duration"
-            type="number"
-            min={1}
-            max={30}
-            value={tripDays}
-            onChange={(e) => setTripDays(Number(e.target.value))}
-            className="bg-white/10 border-white/20 text-white text-sm focus-visible:ring-white/30"
-            disabled={isLoading}
-          />
-        </div>
-
-        {/* Budget */}
-        <div className="space-y-1.5">
-          <Label className="text-white/80 text-xs font-medium flex items-center gap-1">
-            <DollarSign className="h-3 w-3" />
-            Budget
-          </Label>
-          <Select
-            value={budget}
-            onValueChange={(v) => setBudget(v as BudgetTier)}
-            disabled={isLoading}
-          >
-            <SelectTrigger className="bg-white/10 border-white/20 text-white text-sm focus:ring-white/30">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="budget">🪙 Budget</SelectItem>
-              <SelectItem value="mid-range">💳 Mid-range</SelectItem>
-              <SelectItem value="luxury">💎 Luxury</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Interests */}
-      <div className="space-y-1.5">
-        <Label htmlFor="interests" className="text-white/80 text-xs font-medium">
-          Interests / activities
-        </Label>
-        <Input
-          id="interests"
-          value={interests}
-          onChange={(e) => setInterests(e.target.value)}
-          placeholder="e.g. food, temples, hiking, art museums, nightlife"
-          className="bg-white/10 border-white/20 text-white placeholder:text-white/30 text-sm focus-visible:ring-white/30"
-          disabled={isLoading}
-        />
-      </div>
-
-      {/* Submit */}
-      <Button
-        type="submit"
-        size="lg"
-        disabled={!query.trim() || isLoading}
-        className="w-full bg-white text-blue-900 hover:bg-blue-50 font-semibold text-base h-12 transition-all"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Planning your trip…
-          </>
-        ) : (
-          <>
-            <Search className="mr-2 h-5 w-5" />
-            Plan My Trip
-          </>
-        )}
-      </Button>
+      {isLoading && (
+        <p className="mt-3 text-center text-xs text-gray-400">
+          Planning your trip… this takes about 30–60 seconds ✨
+        </p>
+      )}
     </form>
   );
 }
