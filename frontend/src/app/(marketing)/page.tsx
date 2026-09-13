@@ -1,82 +1,135 @@
 "use client";
 
-import { Plane, Zap, Shield, Globe } from "lucide-react";
+import Image from "next/image";
+import { Sparkles, Plane, BookOpen, Heart, HelpCircle, ArrowRight, Loader2, MapPin, Calendar } from "lucide-react";
 import { TripForm } from "@/components/trip/TripForm";
 import { AgentTimeline } from "@/components/trip/AgentTimeline";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { Navbar } from "@/components/layout/Navbar";
 import { useTripStore } from "@/store/trip-store";
 
 const FEATURES = [
   {
+    icon: Sparkles,
+    gradient: "from-purple-500 to-indigo-600",
+    shadow: "shadow-purple-500/30",
+    title: "AI Powered Plans",
+    description: "Smart itineraries tailored to your interests",
+  },
+  {
     icon: Plane,
-    title: "Real Flight Data",
-    description: "Live flight search via AviationStack with Tavily fallback for global coverage.",
+    gradient: "from-teal-400 to-cyan-500",
+    shadow: "shadow-teal-400/30",
+    title: "Best Flights & Hotels",
+    description: "Find the best deals across top providers",
   },
   {
-    icon: Globe,
-    title: "Hotel Recommendations",
-    description: "Google Places + curated web search finds hotels matching your budget tier.",
+    icon: BookOpen,
+    gradient: "from-amber-400 to-orange-500",
+    shadow: "shadow-amber-400/30",
+    title: "Day-by-Day Itineraries",
+    description: "Explore, eat, and experience like a local",
   },
   {
-    icon: Zap,
-    title: "Day-by-Day Itinerary",
-    description: "A dedicated agent crafts your complete daily schedule with local insights.",
-  },
-  {
-    icon: Shield,
-    title: "Persistent Memory",
-    description: "PostgreSQL checkpointing remembers your trips. Ask follow-up questions anytime.",
+    icon: Heart,
+    gradient: "from-pink-500 to-rose-500",
+    shadow: "shadow-pink-500/30",
+    title: "Personalised for You",
+    description: "Your style. Your budget. Your trip.",
   },
 ];
 
+const DESTINATIONS = [
+  { src: "/images/dest-tokyo.png", label: "Tokyo, Japan" },
+  { src: "/images/dest-maldives.png", label: "Maldives" },
+  { src: "/images/dest-santorini.png", label: "Santorini, Greece" },
+  { src: "/images/dest-bali.png", label: "Bali, Indonesia" },
+];
+
 export default function HomePage() {
-  const { status, agentSteps, error, clearError } = useTripStore();
+  const { status, agentSteps, error, clearError, sessionId } = useTripStore();
 
   const isPlanning = status === "connecting" || status === "planning";
-  const showTimeline = isPlanning || status === "completed";
+  const isCompleted = status === "completed";
+  const showTimeline = isPlanning || isCompleted;
 
   return (
     <div className="flex flex-col">
-      {/* ─── Hero Section ─── */}
-      <section className="hero-gradient px-4 py-16 sm:py-24">
-        <div className="container mx-auto max-w-4xl">
-          {/* Badge */}
-          <div className="mb-6 flex justify-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/30 bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-200">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-300" />
+      {/* Hero Section */}
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Background image */}
+        <Image
+          src="/images/hero-bg.jpg"
+          alt="Traveler overlooking scenic landscape"
+          fill
+          priority
+          className="object-cover object-center"
+        />
+
+        {/* Gradient overlay — darkens bottom so text/form readable */}
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/30 via-blue-900/20 to-blue-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 to-transparent" />
+
+        {/* Decorative elements */}
+        <div className="absolute left-8 top-32 z-10 hidden lg:block -rotate-6">
+          <p className="font-pacifico text-3xl text-white/90 drop-shadow-md leading-tight">
+            New Places
+            <br />
+            <span className="ml-4">Bigger Dreams</span>
+          </p>
+        </div>
+
+        <div className="absolute right-12 top-24 z-10 hidden lg:block w-64 opacity-80">
+          <svg viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+            <path
+              d="M0,40 Q50,40 100,10 T200,10"
+              stroke="white"
+              strokeWidth="2"
+              strokeDasharray="4 4"
+              className="animate-dash"
+            />
+            <Plane className="h-6 w-6 text-white animate-plane-fly absolute -right-4 -top-2 rotate-45" />
+          </svg>
+        </div>
+
+        {/* Navbar rendered as overlay */}
+        <Navbar />
+
+        {/* Hero content */}
+        <div className="relative z-10 flex flex-col items-center px-4 pt-24 pb-16 sm:pt-32">
+          {/* Headline */}
+          <div className="mb-2 text-center">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-lg">
+              Plan Your{" "}
+              <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+                Perfect Trip
               </span>
-              Powered by LangGraph Multi-Agent AI
-            </span>
+              <br />
+              in Seconds
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-center text-sm text-white/80 sm:text-base leading-relaxed drop-shadow">
+              Tell us where you want to go. Our AI agents search flights, curate hotels,
+              and craft a personalised day-by-day itinerary — all from one sentence.
+            </p>
           </div>
 
-          {/* Headline */}
-          <h1 className="mb-4 text-center text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Plan Your Perfect Trip
-            <span className="block text-blue-300">in Seconds</span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-2xl text-center text-base text-blue-100/80 sm:text-lg">
-            Tell us where you want to go. Our AI agents search flights, curate hotels,
-            and craft a personalised day-by-day itinerary — all from one sentence.
-          </p>
-
-          {/* Form Card */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 sm:p-8">
+          {/* White form card */}
+          <div className="mt-8 w-full max-w-2xl rounded-2xl bg-white shadow-2xl shadow-blue-900/40 overflow-hidden">
             <TripForm />
           </div>
 
-          {/* Agent Timeline — visible while planning */}
+          {/* Agent Timeline — visible while planning or completed */}
           {showTimeline && (
-            <div className="mt-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+            <div className="mt-6 w-full max-w-2xl rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md p-5 shadow-xl">
               <AgentTimeline steps={agentSteps} />
-              {status === "completed" && (
+              {isCompleted && sessionId && (
                 <div className="mt-6 flex justify-center">
                   <a
-                    href={`/trip/${useTripStore.getState().sessionId}`}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-blue-600/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                    href={`/trip/${sessionId}`}
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-blue-600 px-8 text-sm font-semibold text-white shadow-lg shadow-blue-600/40 transition-all hover:bg-blue-500 hover:shadow-blue-500/40"
                   >
                     See the Plan
+                    <ArrowRight className="h-4 w-4" />
                   </a>
                 </div>
               )}
@@ -85,80 +138,88 @@ export default function HomePage() {
 
           {/* Error */}
           {error && (
-            <div className="mt-4">
-              <ErrorAlert
-                message={error}
-                onDismiss={clearError}
-              />
+            <div className="mt-4 w-full max-w-2xl">
+              <ErrorAlert message={error} onDismiss={clearError} />
             </div>
           )}
-        </div>
-      </section>
 
-      {/* ─── Features Section ─── */}
-      <section className="px-4 py-16 bg-background">
-        <div className="container mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
-            <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
-              Four Specialist Agents, One Seamless Plan
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              Each agent is an expert in its domain — they collaborate through a shared LangGraph state.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map((feature) => (
-              <div
-                key={feature.title}
-                className="group rounded-xl border p-5 transition-shadow hover:shadow-md"
-              >
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 group-hover:bg-blue-100 transition-colors">
-                  <feature.icon className="h-5 w-5 text-blue-600" />
-                </div>
-                <h3 className="mb-1.5 text-sm font-semibold">{feature.title}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Pipeline diagram */}
-          <div className="mt-12 rounded-xl border bg-muted/30 p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground text-center">
-              Agent Pipeline
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {[
-                { label: "Parse Query", color: "bg-blue-100 text-blue-800" },
-                { label: "→", color: "text-muted-foreground" },
-                { label: "Flight Search", color: "bg-sky-100 text-sky-800" },
-                { label: "→", color: "text-muted-foreground" },
-                { label: "Hotel Search", color: "bg-amber-100 text-amber-800" },
-                { label: "→", color: "text-muted-foreground" },
-                { label: "Itinerary", color: "bg-emerald-100 text-emerald-800" },
-                { label: "→", color: "text-muted-foreground" },
-                { label: "Final Plan", color: "bg-purple-100 text-purple-800" },
-              ].map((step, i) =>
-                step.label === "→" ? (
-                  <span key={i} className="text-lg text-muted-foreground">
-                    →
-                  </span>
-                ) : (
-                  <span
-                    key={i}
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${step.color}`}
+          {/* Features Strip */}
+          <div className="mt-16 w-full max-w-5xl">
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+              {FEATURES.map((feature) => (
+                <div key={feature.title} className="flex flex-col items-center text-center gap-3">
+                  <div
+                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg ${feature.shadow}`}
                   >
-                    {step.label}
-                  </span>
-                )
-              )}
+                    <feature.icon className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white drop-shadow-md">{feature.title}</p>
+                    <p className="mt-1 text-xs text-blue-100 drop-shadow">{feature.description}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              All agents share a single <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">TravelState</code> — persisted via PostgreSQL checkpointing
-            </p>
           </div>
+
+          {/* Destinations Gallery */}
+          <div className="mt-16 w-full max-w-6xl flex flex-col lg:flex-row items-center justify-center gap-8 pb-12">
+            {/* Cards */}
+            <div className="flex gap-4 overflow-visible w-full lg:w-auto justify-center">
+              {DESTINATIONS.map((dest, i) => (
+                <div
+                  key={dest.label}
+                  className="relative h-48 w-60 shrink-0 overflow-hidden rounded-2xl shadow-2xl border-4 border-white/20"
+                  style={{ transform: `rotate(${[-4, 2, -2, 4][i]}deg)` }}
+                >
+                  <Image
+                    src={dest.src}
+                    alt={dest.label}
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-1">
+                      <MapPin className="h-3 w-3 text-white" />
+                      <span className="text-xs font-medium text-white">{dest.label}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Tagline */}
+            <div className="shrink-0 text-center lg:text-right mt-6 lg:mt-0 lg:ml-8 transform rotate-[-5deg]">
+              <p className="font-pacifico text-3xl leading-snug text-white drop-shadow-lg">
+                Your next
+              </p>
+              <p className="font-pacifico text-4xl leading-snug text-white drop-shadow-lg">
+                adventure starts
+              </p>
+              <p className="font-pacifico text-3xl leading-snug text-white drop-shadow-lg text-right">
+                here 
+              </p>
+            </div>
+          </div>
+        </div>
+
+      {/* Decorative Wave Overlay (bottom left) */}
+        <div className="absolute bottom-0 left-0 w-1/3 opacity-40 pointer-events-none">
+          <svg viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 200V100C100 100 150 150 250 120C350 90 400 150 400 150V200H0Z" fill="url(#paint0_linear)" />
+            <path d="M0 200V140C80 140 120 170 200 150C280 130 350 170 400 160V200H0Z" fill="url(#paint1_linear)" />
+            <defs>
+              <linearGradient id="paint0_linear" x1="0" y1="100" x2="400" y2="200" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#3b82f6" stopOpacity="0.5" />
+                <stop offset="1" stopColor="#1d4ed8" stopOpacity="0.8" />
+              </linearGradient>
+              <linearGradient id="paint1_linear" x1="0" y1="140" x2="400" y2="200" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#60a5fa" stopOpacity="0.6" />
+                <stop offset="1" stopColor="#2563eb" stopOpacity="0.9" />
+              </linearGradient>
+            </defs>
+          </svg>
         </div>
       </section>
     </div>
